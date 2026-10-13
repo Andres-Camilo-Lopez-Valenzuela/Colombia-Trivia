@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#123b67">
+  <meta
+    name="description"
+    content="Trivia Colombia: pon a prueba cuánto sabes sobre Colombia."
+  >
+  <title>Trivia Colombia</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="js/preguntas.js" defer></script>
+  <script src="js/seleccion.js" defer></script>
+  <script src="js/storage.js" defer></script>
+  <script src="js/app.js" defer></script>
+</head>
+<body>
+  <!-- Encabezado común para todas las pantallas del juego. -->
+  <header class="site-header">
+    <a class="brand" href="#inicio" aria-label="Trivia Colombia, ir al inicio">
+      <span class="brand__flag" aria-hidden="true"></span>
+      <span>Trivia <strong>Colombia</strong></span>
+    </a>
+    <p class="site-header__tagline">¿Cuánto sabes de nuestro país?</p>
+  </header>
+
+  <main class="app-shell">
+    <!-- Pantalla de bienvenida y configuración de la partida. -->
+    <section
+      class="screen screen--active"
+      id="inicio"
+      aria-labelledby="inicio-titulo"
+    >
+      <div class="intro-card panel">
+        <p class="eyebrow">Un viaje por nuestro país</p>
+        <h1 id="inicio-titulo">¡Pon a prueba lo que sabes!</h1>
+        <p class="intro-card__description">
+          Elige una categoría y dificultad, y responde una ronda de preguntas sobre Colombia.
+        </p>
+
+        <form class="setup-form" id="setup-form">
+          <div class="form-field">
+            <label for="player-name">Tu nombre</label>
+            <input
+              id="player-name"
+              name="playerName"
+              type="text"
+              autocomplete="name"
+              placeholder="Escribe tu nombre"
+              maxlength="24"
+              required
+            >
+          </div>
+
+          <div class="form-grid">
+            <div class="form-field">
+              <label for="category-select">Categoría</label>
+              <select id="category-select" name="category" required>
+                <option value="Todas">Todas</option>
+                <option value="Geografía">Geografía</option>
+                <option value="Historia">Historia</option>
+                <option value="Cultura y Tradiciones">Cultura y Tradiciones</option>
+                <option value="Deportes">Deportes</option>
+                <option value="Ciencia y Naturaleza">Ciencia y Naturaleza</option>
+              </select>
+            </div>
+
+            <div class="form-field">
+              <label for="difficulty-select">Dificultad</label>
+              <select id="difficulty-select" name="difficulty" required>
+                <option value="Fácil">Fácil</option>
+                <option value="Medio">Medio</option>
+                <option value="Difícil">Difícil</option>
+              </select>
+            </div>
+          </div>
+
+          <button class="button button--primary button--wide" type="submit">
+            Comenzar
+            <span aria-hidden="true">→</span>
+          </button>
+        </form>
+      </div>
+
+      <p class="privacy-note">Sin cuentas ni servidores. Tu partida ocurre en este navegador.</p>
+    </section>
+
+    <!-- Pantalla principal de preguntas y controles de la partida. -->
+    <section
+      class="screen"
+      id="juego"
+      aria-labelledby="question-text"
+      hidden
+    >
+      <div class="game-topbar">
+        <div class="player-summary">
+          <span class="player-summary__label">Jugador</span>
+          <strong id="game-player-name">Nombre</strong>
+        </div>
+        <div class="game-meta" aria-label="Configuración de la partida">
+          <span class="tag" id="game-category">Categoría</span>
+          <span class="tag tag--muted" id="game-difficulty">Dificultad</span>
+        </div>
+      </div>
+
+      <div class="game-status">
+        <p class="question-count" id="question-count">Pregunta 1 de 10</p>
+        <div
+          class="timer"
+          id="timer"
+          role="timer"
+          aria-label="Tiempo restante"
+          aria-live="off"
+        >
+          <span class="timer__icon" aria-hidden="true">◷</span>
+          <span id="time-remaining">20</span>
+          <span class="timer__unit">s</span>
+        </div>
+        <p class="score-display">Puntaje <strong id="current-score">0</strong></p>
+      </div>
+
+      <div
+        class="progress-track"
+        id="question-progress"
+        role="progressbar"
+        aria-label="Progreso de la partida"
+        aria-valuemin="0"
+        aria-valuemax="10"
+        aria-valuenow="0"
+      >
+        <span class="progress-track__bar" id="progress-bar"></span>
+      </div>
+
+      <div
+        class="time-track"
+        id="time-progress"
+        role="progressbar"
+        aria-label="Tiempo restante para responder"
+        aria-valuemin="0"
+        aria-valuemax="20"
+        aria-valuenow="20"
+      >
+        <span class="time-track__bar" id="time-bar"></span>
+      </div>
+
+      <article class="question-card panel">
+        <p class="eyebrow" id="question-category-label">Colombia en datos</p>
+        <h1 class="question-card__title" id="question-text">
+          El enunciado de la pregunta aparecerá aquí.
+        </h1>
+
+        <!-- La lógica de la partida actualizará el texto de las cuatro opciones. -->
+        <div class="answer-list" id="answer-options" aria-label="Opciones de respuesta">
+          <button class="answer-option" type="button" data-option="0">
+            <span class="answer-option__letter" aria-hidden="true">A</span>
+            <span class="answer-option__text">Opción de respuesta 1</span>
+          </button>
+          <button class="answer-option" type="button" data-option="1">
+            <span class="answer-option__letter" aria-hidden="true">B</span>
+            <span class="answer-option__text">Opción de respuesta 2</span>
+          </button>
+          <button class="answer-option" type="button" data-option="2">
+            <span class="answer-option__letter" aria-hidden="true">C</span>
+            <span class="answer-option__text">Opción de respuesta 3</span>
+          </button>
+          <button class="answer-option" type="button" data-option="3">
+            <span class="answer-option__letter" aria-hidden="true">D</span>
+            <span class="answer-option__text">Opción de respuesta 4</span>
+          </button>
+        </div>
+      </article>
+
+      <div class="lifelines" aria-label="Comodines disponibles">
+        <button class="button button--secondary lifeline-button" id="fifty-fifty" type="button">
+          <span class="lifeline-button__icon" aria-hidden="true">½</span>
+          <span><strong>50/50</strong><small>Quita dos opciones</small></span>
+        </button>
+        <button class="button button--secondary lifeline-button" id="extra-time" type="button">
+          <span class="lifeline-button__icon" aria-hidden="true">＋</span>
+          <span><strong>Tiempo extra</strong><small>Gana unos segundos</small></span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Mensaje que aparece después de responder una pregunta. -->
+    <section
+      class="screen feedback-screen"
+      id="retroalimentacion"
+      aria-labelledby="feedback-title"
+      aria-live="polite"
+      role="dialog"
+      aria-modal="true"
+      hidden
+    >
+      <div class="feedback-card panel" id="feedback-card">
+        <p class="eyebrow">Resultado de la pregunta</p>
+        <h1 id="feedback-title">¡Muy bien!</h1>
+        <p class="feedback-card__answer">
+          Respuesta correcta:
+          <strong id="correct-answer">La respuesta correcta aparecerá aquí.</strong>
+        </p>
+        <p class="feedback-card__explanation" id="answer-explanation">
+          Aquí aparecerá una breve explicación sobre la respuesta.
+        </p>
+        <button class="button button--primary button--wide" id="next-question" type="button">
+          Continuar
+          <span aria-hidden="true">→</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Resumen de la partida finalizada y accesos a otras pantallas. -->
+    <section
+      class="screen"
+      id="resultados"
+      aria-labelledby="results-title"
+      hidden
+    >
+      <div class="results-card panel">
+        <p class="eyebrow">Partida finalizada</p>
+        <h1 id="results-title">¡Buen trabajo, <span id="results-player-name">jugador</span>!</h1>
+
+        <div class="final-score">
+          <span class="final-score__label">Puntaje final</span>
+          <strong id="final-score">0</strong>
+          <span class="final-score__out-of">de 10</span>
+        </div>
+
+        <dl class="results-summary">
+          <div class="results-summary__item results-summary__item--correct">
+            <dt>Aciertos</dt>
+            <dd id="correct-count">0</dd>
+          </div>
+          <div class="results-summary__item results-summary__item--incorrect">
+            <dt>Errores</dt>
+            <dd id="incorrect-count">0</dd>
+          </div>
+          <div class="results-summary__item">
+            <dt>Tiempo</dt>
+            <dd id="total-time">0:00</dd>
+          </div>
+          <div class="results-summary__item">
+            <dt>Mejor racha</dt>
+            <dd id="best-streak">0</dd>
+          </div>
+        </dl>
+
+        <section class="statistics-panel" aria-labelledby="statistics-title">
+          <h2 id="statistics-title">Estadísticas acumuladas</h2>
+          <dl class="statistics-grid">
+            <div class="statistics-grid__item">
+              <dt>Partidas jugadas</dt>
+              <dd id="statistics-games">0</dd>
+            </div>
+            <div class="statistics-grid__item">
+              <dt>Aciertos totales</dt>
+              <dd id="statistics-correct">0</dd>
+            </div>
+            <div class="statistics-grid__item">
+              <dt>Errores totales</dt>
+              <dd id="statistics-incorrect">0</dd>
+            </div>
+            <div class="statistics-grid__item">
+              <dt>Mejor puntaje</dt>
+              <dd id="statistics-best-score">0</dd>
+            </div>
+            <div class="statistics-grid__item">
+              <dt>Mejor racha</dt>
+              <dd id="statistics-best-streak">0</dd>
+            </div>
+          </dl>
+        </section>
+
+        <div class="results-actions">
+          <button class="button button--primary" id="play-again" type="button">
+            Jugar de nuevo
+          </button>
+          <button class="button button--secondary" id="show-ranking" type="button">
+            Ver ranking
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tabla reservada para el top 10 almacenado localmente por la aplicación. -->
+    <section
+      class="screen"
+      id="ranking"
+      aria-labelledby="ranking-title"
+      hidden
+    >
+      <div class="ranking-card panel">
+        <p class="eyebrow">Los mejores puntajes</p>
+        <h1 id="ranking-title">Ranking local</h1>
+        <p class="ranking-card__description">
+          Tus mejores partidas guardadas en este navegador.
+        </p>
+
+        <div class="table-scroll">
+          <table class="ranking-table">
+            <caption class="visually-hidden">Top 10 de Trivia Colombia</caption>
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Nombre</th>
+                <th scope="col">Puntaje</th>
+                <th scope="col">Categoría</th>
+                <th scope="col">Dificultad</th>
+                <th scope="col">Fecha</th>
+              </tr>
+            </thead>
+            <tbody id="ranking-entries">
+              <tr class="ranking-table__empty">
+                <td colspan="6">Todavía no hay puntajes. ¡Juega una partida!</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <button class="button button--secondary" id="back-to-home" type="button">
+          Volver al inicio
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Pie común con una nota sobre el almacenamiento local. -->
+  <footer class="site-footer">
+    <p>Trivia Colombia <span aria-hidden="true">·</span> Hecho para aprender jugando</p>
+  </footer>
+</body>
+</html>
